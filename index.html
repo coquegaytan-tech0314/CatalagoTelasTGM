@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+<meta name="generator" content="Perplexity Computer">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catálogo de Telas - Editable</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="hdr">
+  <h1>Catálogo de Telas</h1>
+  <p>Editable &bull; Precios en MXN</p>
+  <div class="hdr-actions">
+    <button class="hdr-btn" onclick="openHistory()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Historial</button>
+    <button class="hdr-btn" onclick="exportData()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Exportar</button>
+  </div>
+</div>
+
+<div class="srch">
+  <div class="srch-in">
+    <div class="srch-box">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInput" placeholder="Buscar tela, composición, precio..." autocomplete="off">
+    </div>
+    <div class="v-tog">
+      <button class="v-btn act" id="vCards" onclick="setView('cards')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></button>
+      <button class="v-btn" id="vTable" onclick="setView('table')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<div class="flt" id="filters">
+  <span class="fl">Composición:</span>
+  <button class="fc act" data-f="comp" data-v="all">Todas</button>
+  <button class="fc" data-f="comp" data-v="pol100">100% Poliéster</button>
+  <button class="fc" data-f="comp" data-v="polalg">Poliéster/Algodón</button>
+  <button class="fc" data-f="comp" data-v="multi">Multifilamento</button>
+  <button class="fc" data-f="comp" data-v="micro">Microfibra</button>
+  <button class="fc" data-f="comp" data-v="acrilico">Acrílico</button>
+  <button class="fc" data-f="comp" data-v="elastano">Elastano</button>
+  <button class="fc" data-f="comp" data-v="other">Otros</button>
+  <div class="fd"></div>
+  <span class="fl">Venta:</span>
+  <button class="fc act" data-f="unit" data-v="all">Todos</button>
+  <button class="fc" data-f="unit" data-v="kg">Por Kilo</button>
+  <button class="fc" data-f="unit" data-v="mt">Por Metro</button>
+  <div class="fd"></div>
+  <span class="fl">Precio:</span>
+  <button class="fc act" data-f="price" data-v="all">Todos</button>
+  <button class="fc" data-f="price" data-v="eco">&lt;$50</button>
+  <button class="fc" data-f="price" data-v="mid">$50-$150</button>
+  <button class="fc" data-f="price" data-v="prem">&gt;$150</button>
+</div>
+
+<div class="sts"><span class="sts-c" id="statsC"></span><select class="srt" id="srtSel" onchange="refresh()"><option value="n-a">Nombre A-Z</option><option value="n-d">Nombre Z-A</option><option value="p-a">Precio ↑</option><option value="p-d">Precio ↓</option><option value="w-d">Peso ↓</option><option value="w-a">Peso ↑</option></select></div>
+
+<div class="grd" id="grid"></div>
+<div class="tw" id="tblW"><table><thead><tr><th onclick="tSort(0)">Tela</th><th onclick="tSort(1)">Composición</th><th onclick="tSort(2)">Ancho</th><th onclick="tSort(3)">Rendimiento</th><th onclick="tSort(4)">Peso</th><th onclick="tSort(5)">Contado</th><th onclick="tSort(6)">30 Días</th><th onclick="tSort(7)">60 Días</th></tr></thead><tbody id="tblB"></tbody></table></div>
+
+<!-- FAB add button -->
+<button class="add-fab" onclick="openNew()" title="Agregar nueva tela">+</button>
+
+<!-- EDIT MODAL -->
+<div class="ov" id="editOv" onclick="if(event.target===this)closeEdit()">
+  <div class="mdl">
+    <div class="mdl-hd">
+      <div><h2 id="eTitle">Editar Tela</h2><span class="mb" id="eBadge"></span></div>
+      <button class="mdl-x" onclick="closeEdit()">&times;</button>
+    </div>
+    <div class="mdl-bd">
+      <div class="ms"><h3>Nombre</h3>
+        <div class="fi full"><label>Nombre de la tela</label><input type="text" id="eName"></div>
+      </div>
+      <div class="ms"><h3>Composición</h3>
+        <div class="fi full"><label>Material</label><input type="text" id="eComp"></div>
+      </div>
+      <div class="ms"><h3>Especificaciones</h3>
+        <div class="fg">
+          <div class="fi"><label>Ancho (m)</label><input type="text" id="eAncho"></div>
+          <div class="fi"><label>Rendimiento</label><input type="text" id="eRend"></div>
+          <div class="fi"><label>Peso (g/m²)</label><input type="text" id="ePeso"><div class="hint">Vacío = venta por metro</div></div>
+          <div class="fi"><label>Venta por</label><input type="text" id="eUnit" readonly></div>
+        </div>
+      </div>
+      <div class="ms"><h3>Precios (MXN)</h3>
+        <div class="pf">
+          <div class="fi"><label>Contado</label><input type="number" step="0.01" id="eP1"></div>
+          <div class="fi"><label>30 Días</label><input type="number" step="0.01" id="eP2"></div>
+          <div class="fi"><label>60 Días</label><input type="number" step="0.01" id="eP3"></div>
+        </div>
+      </div>
+      <div class="ms"><h3>Usos Sugeridos</h3>
+        <div class="fi full"><label>Separados por coma</label><textarea id="eUsos" placeholder="Ej: Playeras, Polos, Sublimación"></textarea></div>
+      </div>
+      <div class="btn-row btn-row-l">
+        <button class="btn btn-d" id="eDelBtn" onclick="confirmDelete()">Eliminar</button>
+        <div style="display:flex;gap:0.5rem">
+          <button class="btn btn-s" onclick="closeEdit()">Cancelar</button>
+          <button class="btn btn-p" onclick="trySave()">Guardar Cambios</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PASSWORD DIALOG -->
+<div class="ov" id="pwOv" onclick="if(event.target===this)closePw()">
+  <div class="pw-dlg">
+    <h3>🔒 Contraseña Requerida</h3>
+    <p id="pwMsg">Ingresa la contraseña para guardar los cambios</p>
+    <input type="password" id="pwInput" placeholder="Contraseña" autocomplete="off">
+    <div class="pw-err" id="pwErr">Contraseña incorrecta</div>
+    <div class="pw-btns">
+      <button class="btn btn-s" onclick="closePw()">Cancelar</button>
+      <button class="btn btn-p" onclick="checkPw()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORY PANEL -->
+<div class="ov" id="histOv" onclick="if(event.target===this)closeHist()">
+  <div class="hist-panel">
+    <div class="hist-hd"><h2>Historial de Cambios</h2><button class="mdl-x" onclick="closeHist()">&times;</button></div>
+    <div class="hist-bd" id="histBd"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<footer>
+  <p>Datos almacenados localmente en este navegador</p>
+  <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">Created with Perplexity Computer</a>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
